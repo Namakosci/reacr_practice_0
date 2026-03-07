@@ -1,4 +1,4 @@
-type fruit = {
+export type fruit = {
     id: number;
     name: string;
     scientificName: string;
