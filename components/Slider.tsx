@@ -34,11 +34,11 @@ export default function Slider() {
             <h1>{fruits[index].name}</h1>
             <img src={`/images/${fruits[index].image}`} alt={fruits[index].name} />
             <p>Page {index + 1} of {fruits.length}</p>
-            <button onClick={prevClick} disabled={!canPrev}>
+            <button onClick={prevClick}>
                 Prev
             </button>
             　　
-            <button onClick={nextClick} disabled={!canNext}>
+            <button onClick={nextClick}>
                 Next
             </button>
             <br />
