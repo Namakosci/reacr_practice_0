@@ -46,7 +46,7 @@ export default function Slider() {
                 {showMore ? "Show Less" : "Show More"}
             </button>
             {showMore && (
-                <ul className="text-left max-w-md mx-auto bg-gray-100 p-4 rounded">
+                <ul className="text-left max-w-md mx-auto mb-5 bg-gray-200 p-4 rounded">
                     <li>学名: {fruits[index].scientificName}</li>
                     <li>目　: {fruits[index].order}</li>
                     <li>科　: {fruits[index].family}</li>
