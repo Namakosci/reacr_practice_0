@@ -17,8 +17,7 @@ export const fruits: fruit[] = [
         family: "Rosaceae",
         genus: "Malus",
         image: "apple.png",
-    },
-    {
+    },{
         id: 2,
         name: "ブドウ",
         scientificName: "Vitis vinifera",
@@ -26,8 +25,7 @@ export const fruits: fruit[] = [
         family: "Vitaceae",
         genus: "Vitis",
         image: "grape.png",
-    },
-    {
+    },{
         id: 3,
         name: "オレンジ",
         scientificName: "Citrus sinensis",
@@ -35,8 +33,7 @@ export const fruits: fruit[] = [
         family: "Rutaceae",
         genus: "Citrus",
         image: "orange.png",
-    },
-    {
+    },{
         id: 4,
         name: "柿",
         scientificName: "Diospyros kaki",
@@ -44,8 +41,7 @@ export const fruits: fruit[] = [
         family: "Ebenaceae",
         genus: "Diospyros",
         image: "kaki.png",
-    },
-    {
+    },{
         id: 5,
         name: "モモ",
         scientificName: "Prunus persica",
