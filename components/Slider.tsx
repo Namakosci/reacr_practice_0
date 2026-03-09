@@ -33,11 +33,10 @@ export default function Slider() {
     return (
         <div className="text-center">
             <h1 className="font-bold text-4xl">{fruits[index].name}</h1>
-            <Image
+            <img
                 src={`/images/${fruits[index].image}`}
                 alt={fruits[index].name}
-                className="h-64 mx-auto"
-                height={256}
+                className="h-64 mx-auto h-100"
             />
             <p>Page {index + 1} of {fruits.length}</p>
 
