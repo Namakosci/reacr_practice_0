@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 import { fruits } from "./data";
 
 export default function Slider() {
@@ -36,7 +35,7 @@ export default function Slider() {
             <img
                 src={`/images/${fruits[index].image}`}
                 alt={fruits[index].name}
-                className="h-64 mx-auto h-100"
+                className="h-64 mx-auto"
             />
             <p>Page {index + 1} of {fruits.length}</p>
 

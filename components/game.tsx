@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 function Block({ blockNumber }: { blockNumber: number }) {
   const blockX: number = blockNumber % 8 * 60 + 2;
   const blockY: number = Math.floor(blockNumber / 8) * 32;
+
   return (
     <div
       className="h-7 w-14 bg-blue-600"
@@ -28,71 +29,135 @@ export default function Game() {
   const [ballX, setBallX] = useState(0);
   const [ballY, setBallY] = useState(530);
 
-  // Keep refs in sync for the animation loop so collision detection uses the latest values.
+  const [BlockData, setBlockData] = useState(Array(48).fill(true));
+
+  const BlockLeft: number[] = [2, 62, 122, 182, 242, 302, 362, 422];
+  const BlockRight: number[] = [58, 118, 178, 238, 298, 358, 418, 478];
+  const BlockTop: number[] = [0, 32, 64, 96, 128, 160];
+  const BlockBottom: number[] = [28, 60, 92, 124, 156, 188];
+
+  const blockCollision = (ballLeft: number, ballRight: number, ballTop: number, ballBottom: number, copyedBlockData: boolean[]) => {
+    let Xreflection: boolean = false;
+    let Yreflection: boolean = false;
+    const newBlockData = copyedBlockData.map((isExist, index) => {
+      if (!isExist) return false;
+      const rawNumber = Math.floor(index / 8);
+      const columnNumber = index % 8;
+
+      //左壁
+      if (ballRight >= BlockLeft[columnNumber] &&
+        ballLeft <= BlockRight[columnNumber] &&
+        ballTop >= BlockTop[rawNumber] &&
+        ballBottom <= BlockBottom[rawNumber]
+      ) {
+        Xreflection = true;
+        return false;
+      }
+      //右壁
+      if (ballLeft <= BlockRight[columnNumber] &&
+        ballRight >= BlockLeft[columnNumber] &&
+        ballTop >= BlockTop[rawNumber] &&
+        ballBottom <= BlockBottom[rawNumber]
+      ) {
+        Xreflection = true;
+        return false;
+      }
+      //上壁
+      if (ballBottom >= BlockTop[rawNumber] &&
+        ballTop <= BlockBottom[rawNumber] &&
+        ballLeft >= BlockLeft[columnNumber] &&
+        ballRight <= BlockRight[columnNumber]
+      ) {
+        Yreflection = true;
+        return false;
+      }
+      //下壁
+      if (ballTop <= BlockBottom[rawNumber] &&
+        ballBottom >= BlockTop[rawNumber] &&
+        ballLeft >= BlockLeft[columnNumber] &&
+        ballRight <= BlockRight[columnNumber]
+      ) {
+        Yreflection = true;
+        return false;
+      }
+      return true;
+    });
+    setBlockData([...newBlockData]);
+    return { Xreflection, Yreflection, newBlockData};
+  };
+
+  // アニメーションの為のrefを用意
   const ballXRef = useRef(ballX);
   const ballYRef = useRef(ballY);
   const ballXSpeedRef = useRef(5);
   const ballYSpeedRef = useRef(-5);
   const playerXRef = useRef(playerX);
+  const BlockDataRef = useRef(BlockData);
 
-  useEffect(() => {
-    ballXRef.current = ballX;
-    ballYRef.current = ballY;
-  }, [gameStarted]);
   useEffect(() => {
     playerXRef.current = playerX;
   }, [playerX]);
 
-  const [BlockData, setBlockData] = useState(Array(48).fill(true));
-
-  // ここより下はAIによる実装であるため理解するタスクを済ませてから先に進む
   const animationIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!gameStarted) return;
 
-    const animate = () => {
+    const ballAnimate = () => {
       const ballLeft = ballXRef.current;
       const ballRight = ballXRef.current + ballSize;
       const ballTop = ballYRef.current;
       const ballBottom = ballYRef.current + ballSize;
 
-      let nextVx = ballXSpeedRef.current;
-      let nextVy = ballYSpeedRef.current;
+      let nextBallXSpeed = ballXSpeedRef.current;
+      let nextBallYSpeed = ballYSpeedRef.current;
 
+      //　壁反射
       if (ballLeft <= 0 || ballRight >= 480) {
-        nextVx *= -1;
+        nextBallXSpeed *= -1;
       }
       if (ballTop <= 0) {
-        nextVy *= -1;
+        nextBallYSpeed *= -1;
       }
+      // プレイヤー反射
       if (
         ballBottom >= playerY &&
-        ballTop <= playerY + 8 &&
+        ballTop <= playerY &&
         ballRight >= playerXRef.current &&
         ballLeft <= playerXRef.current + playerSize
       ) {
-        nextVy *= -1;
+        nextBallYSpeed *= -1;
       }
       if (ballBottom >= 600) {
         setGameOver(true);
         return;
       }
-      const nextX = ballXRef.current + nextVx;
-      const nextY = ballYRef.current + nextVy;
+      // ブロック反射
+      const { Xreflection, Yreflection, newBlockData } = blockCollision(ballLeft, ballRight, ballTop, ballBottom, BlockDataRef.current);
+      BlockDataRef.current = newBlockData;
+      if (Xreflection) {
+        nextBallXSpeed *= -1;
+      }
+      if (Yreflection) {
+        nextBallYSpeed *= -1;
+      }
 
-      ballXSpeedRef.current = nextVx;
-      ballYSpeedRef.current = nextVy;
-      ballXRef.current = nextX;
-      ballYRef.current = nextY;
+      // ボール情報を更新
+      const nextBallX = ballXRef.current + nextBallXSpeed;
+      const nextBallY = ballYRef.current + nextBallYSpeed;
 
-      setBallX(nextX);
-      setBallY(nextY);
+      ballXSpeedRef.current = nextBallXSpeed;
+      ballYSpeedRef.current = nextBallYSpeed;
+      ballXRef.current = nextBallX;
+      ballYRef.current = nextBallY;
 
-      animationIdRef.current = requestAnimationFrame(animate);
+      setBallX(nextBallX);
+      setBallY(nextBallY);
+
+      animationIdRef.current = requestAnimationFrame(ballAnimate);
     };
 
-    animationIdRef.current = requestAnimationFrame(animate);
+    animationIdRef.current = requestAnimationFrame(ballAnimate);
 
     return () => {
       if (animationIdRef.current !== null) {
@@ -117,7 +182,11 @@ export default function Game() {
           }
         }
       }}
-      onClick={() => setGameStarted(true)}
+      onClick={() => {
+        setGameStarted(true);
+        ballXRef.current = ballX;
+        ballYRef.current = ballY;
+      }}
     >
       {BlockData.map((isExist, index) => (
         BlockData[index] && <Block blockNumber={index} key={index} />
