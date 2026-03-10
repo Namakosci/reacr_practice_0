@@ -142,7 +142,6 @@ export default function Game() {
         nextBallYSpeed *= -1;
       }
 
-      // ボール情報を更新
       const nextBallX = ballXRef.current + nextBallXSpeed;
       const nextBallY = ballYRef.current + nextBallYSpeed;
 
@@ -165,7 +164,6 @@ export default function Game() {
       }
     };
   }, [gameStarted]);
-  // ここより上はAIによる実装であるため理解するタスクを済ませてから先に進む
 
   return (
     <div
